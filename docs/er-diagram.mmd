@@ -1,0 +1,36 @@
+erDiagram
+    EMPLOYEES ||--o{ TASKS : assigned_to
+    EMPLOYEES ||--o{ USER_SESSIONS : authenticates
+
+    EMPLOYEES {
+        bigint id PK
+        varchar full_name
+        varchar email UK
+        varchar password_hash
+        varchar department
+        varchar designation
+        varchar role
+        boolean active
+        datetime created_at
+    }
+
+    TASKS {
+        bigint id PK
+        varchar title
+        text description
+        bigint assigned_to FK
+        varchar priority
+        varchar status
+        date start_date
+        date deadline
+        datetime created_at
+        datetime updated_at
+    }
+
+    USER_SESSIONS {
+        bigint id PK
+        char token_hash UK
+        bigint employee_id FK
+        datetime expires_at
+        datetime created_at
+    }

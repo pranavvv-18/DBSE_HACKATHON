@@ -1,0 +1,21 @@
+import { useEffect } from 'react'
+import { AlertCircle, LoaderCircle, Search, X } from 'lucide-react'
+
+export function Loading({ label = 'Loading…' }) { return <div className="loading-state"><LoaderCircle className="spin" size={22}/><span>{label}</span></div> }
+export function ErrorState({ message, onRetry }) { return <div className="state-panel error-state"><AlertCircle size={24}/><div><strong>We couldn’t load this information</strong><p>{message}</p>{onRetry && <button className="button button-secondary button-small" onClick={onRetry}>Try again</button>}</div></div> }
+export function EmptyState({ title = 'Nothing here yet', children }) { return <div className="empty-state"><span className="empty-mark"><Search size={22}/></span><strong>{title}</strong><p>{children}</p></div> }
+export function PageHeader({ eyebrow, title, description, actions }) { return <div className="page-header"><div><div className="eyebrow">{eyebrow}</div><h1>{title}</h1>{description && <p>{description}</p>}</div>{actions && <div className="header-actions">{actions}</div>}</div> }
+export function Modal({ title, description, onClose, children, wide = false }) {
+  useEffect(() => { const key = e => { if (e.key === 'Escape') onClose() }; document.addEventListener('keydown', key); return () => document.removeEventListener('keydown', key) }, [onClose])
+  return <div className="modal-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) onClose() }}><section className={`modal ${wide ? 'modal-wide' : ''}`} role="dialog" aria-modal="true" aria-label={title}><header className="modal-header"><div><h2>{title}</h2>{description && <p>{description}</p>}</div><button className="icon-button" aria-label="Close dialog" onClick={onClose}><X size={20}/></button></header>{children}</section></div>
+}
+export function Field({ label, required, hint, error, className = '', ...props }) { return <label className={`field ${className}`}><span className="field-label">{label}{required && <i> *</i>}</span><input {...props} aria-invalid={Boolean(error)} />{hint && !error && <small>{hint}</small>}{error && <small className="field-error">{error}</small>}</label> }
+export function SelectField({ label, required, children, className = '', ...props }) { return <label className={`field ${className}`}><span className="field-label">{label}{required && <i> *</i>}</span><select {...props}>{children}</select></label> }
+export function SearchBox({ value, onChange, placeholder = 'Search…', ariaLabel = 'Search' }) { return <label className="search-box"><Search size={18}/><input aria-label={ariaLabel} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}/>{value && <button type="button" className="search-clear" aria-label="Clear search" onClick={() => onChange('')}><X size={15}/></button>}</label> }
+export function StatusBadge({ status }) { const v = String(status || 'PENDING').toUpperCase(); return <span className={`status-badge status-${v.toLowerCase().replaceAll('_','-')}`}><span/>{v.replaceAll('_',' ')}</span> }
+export function PriorityBadge({ priority }) { const v = String(priority || 'MEDIUM').toUpperCase(); return <span className={`priority priority-${v.toLowerCase()}`}>{v}</span> }
+export function Avatar({ name = 'User', size = '' }) { const initials = name.split(/\s+/).slice(0, 2).map(x => x[0]).join('').toUpperCase(); return <span className={`avatar ${size}`} aria-hidden="true">{initials || 'U'}</span> }
+export function Pagination({ page = 0, totalPages = 1, onChange }) { if (totalPages <= 1) return null; return <div className="pagination"><span>Page {page + 1} of {totalPages}</span><div><button className="button button-secondary button-small" disabled={page <= 0} onClick={() => onChange(page - 1)}>Previous</button><button className="button button-secondary button-small" disabled={page + 1 >= totalPages} onClick={() => onChange(page + 1)}>Next</button></div></div> }
+export function initialsName(user) { return user?.fullName || 'Team member' }
+export function formatDate(value, options = { month: 'short', day: 'numeric', year: 'numeric' }) { if (!value) return '—'; const d = new Date(value); return Number.isNaN(d.getTime()) ? value : new Intl.DateTimeFormat(undefined, options).format(d) }
+export function isManager(user) { return String(user?.role || '').toUpperCase() === 'MANAGER' }

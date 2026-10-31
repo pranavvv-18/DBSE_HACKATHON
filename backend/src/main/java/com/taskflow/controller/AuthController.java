@@ -1,0 +1,11 @@
+package com.taskflow.controller;
+import com.taskflow.dto.ApiDtos.*;import com.taskflow.entity.Employee;import com.taskflow.security.*;import jakarta.servlet.http.*;import jakarta.validation.Valid;import org.springframework.beans.factory.annotation.Value;import org.springframework.http.*;import org.springframework.security.authentication.BadCredentialsException;import org.springframework.web.bind.annotation.*;
+@RestController @RequestMapping("/api/auth") public class AuthController {
+ private final SessionService sessions;private final boolean secure;private final long sessionDays;public AuthController(SessionService s,@Value("${taskflow.cookie.secure:true}")boolean secure,@Value("${taskflow.session.days:7}")long sessionDays){sessions=s;this.secure=secure;this.sessionDays=sessionDays;}
+ @PostMapping("/login") public ResponseEntity<?> login(@Valid @RequestBody LoginRequest x,HttpServletResponse response){try{var issued=sessions.login(x.email(),x.password());response.addHeader(HttpHeaders.SET_COOKIE,cookie(issued.token(),secure).toString());return ResponseEntity.ok(user(issued.employee()));}catch(BadCredentialsException e){return ResponseEntity.status(401).body(new ApiError(java.time.Instant.now().toString(),401,"Unauthorized","Invalid email or password","/api/auth/login",java.util.Map.of()));}}
+ @GetMapping("/me") public AuthUser me(){return user(SessionAuthFilter.current());}
+ @PostMapping("/logout") public ResponseEntity<Void> logout(HttpServletRequest request,HttpServletResponse response){String t=token(request);sessions.revoke(t);response.addHeader(HttpHeaders.SET_COOKIE,cookie("",secure).toString());return ResponseEntity.noContent().build();}
+ private ResponseCookie cookie(String value,boolean secure){return ResponseCookie.from("taskflow_session",value).httpOnly(true).secure(secure).sameSite(secure?"None":"Lax").path("/").maxAge(value.isEmpty()?java.time.Duration.ZERO:java.time.Duration.ofDays(sessionDays)).build();}
+ private String token(HttpServletRequest r){if(r.getCookies()!=null)for(Cookie c:r.getCookies())if("taskflow_session".equals(c.getName()))return c.getValue();return null;}
+ public static AuthUser user(Employee e){return new AuthUser(e.getId(),e.getFullName(),e.getEmail(),e.getRole(),e.getDepartment(),e.getDesignation(),e.isActive());}
+}

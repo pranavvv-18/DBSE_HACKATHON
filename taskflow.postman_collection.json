@@ -1,0 +1,431 @@
+{
+  "info": {
+    "_postman_id": "7f8b9d3e-9b7e-4f32-8e1c-taskflow2026",
+    "name": "TaskFlow REST API",
+    "description": "Comprehensive Postman collection for TaskFlow - Employee Task Management Platform.\nCovers Authentication, Employee Management, Task Management, Kanban status transitions, Task Activity Timelines, Workload balancing, and CSV Report Export.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8081",
+      "type": "string"
+    },
+    {
+      "key": "taskId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "employeeId",
+      "value": "2",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login as Manager",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-TaskFlow-Request", "value": "1" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"manager@taskflow.demo\",\n  \"password\": \"TaskFlowDemo2026!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Authenticates a manager account and establishes an HTTP-only session cookie."
+          }
+        },
+        {
+          "name": "Login as Employee",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-TaskFlow-Request", "value": "1" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"avery@taskflow.demo\",\n  \"password\": \"TaskFlowDemo2026!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Authenticates an employee account and establishes an HTTP-only session cookie."
+          }
+        },
+        {
+          "name": "Get Current Session (Me)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            },
+            "description": "Returns current logged in user details based on session cookie."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "X-TaskFlow-Request", "value": "1" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logout"]
+            },
+            "description": "Terminates the current session and clears the cookie."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Employees",
+      "item": [
+        {
+          "name": "List Employees (Manager)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/employees?page=0&size=20&search=",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "employees"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" },
+                { "key": "search", "value": "" }
+              ]
+            },
+            "description": "List team employees with pagination, search, and active status filtering."
+          }
+        },
+        {
+          "name": "Create Employee (Manager)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-TaskFlow-Request", "value": "1" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Taylor Brooks\",\n  \"email\": \"taylor@taskflow.demo\",\n  \"password\": \"TaskFlowDemo2026!\",\n  \"department\": \"Engineering\",\n  \"designation\": \"QA Engineer\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/employees",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "employees"]
+            },
+            "description": "Creates a new employee with BCrypt encrypted password."
+          }
+        },
+        {
+          "name": "Update Employee (Manager)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-TaskFlow-Request", "value": "1" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Taylor Brooks\",\n  \"email\": \"taylor@taskflow.demo\",\n  \"department\": \"Quality Assurance\",\n  \"designation\": \"Senior QA Automation Engineer\",\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/employees/{{employeeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "employees", "{{employeeId}}"]
+            },
+            "description": "Updates employee metadata or resets credentials."
+          }
+        },
+        {
+          "name": "Deactivate Employee (Manager)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "X-TaskFlow-Request", "value": "1" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/employees/{{employeeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "employees", "{{employeeId}}"]
+            },
+            "description": "Soft-deactivates an employee account to preserve historic task records."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tasks & Kanban",
+      "item": [
+        {
+          "name": "List Tasks (Paged & Filtered)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks?page=0&size=50&status=&priority=&search=",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "50" },
+                { "key": "status", "value": "" },
+                { "key": "priority", "value": "" },
+                { "key": "search", "value": "" }
+              ]
+            },
+            "description": "Fetch tasks with pagination and filtering. Used by Tasks List, Kanban board, and Calendar views."
+          }
+        },
+        {
+          "name": "Get Task Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks/{{taskId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks", "{{taskId}}"]
+            },
+            "description": "Retrieve task details including assignee and deadline."
+          }
+        },
+        {
+          "name": "Create Task (Manager)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-TaskFlow-Request", "value": "1" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Implement Zero-Trust Security Protocol\",\n  \"description\": \"Enforce mandatory MFA and role verification on sensitive endpoints.\",\n  \"assignedEmployeeId\": 2,\n  \"priority\": \"HIGH\",\n  \"status\": \"PENDING\",\n  \"startDate\": \"2026-10-30\",\n  \"deadline\": \"2026-11-10\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks"]
+            },
+            "description": "Creates and assigns a task. Automatically records Task Created and Task Assigned activities in the timeline."
+          }
+        },
+        {
+          "name": "Update Task Status (Kanban Transition)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-TaskFlow-Request", "value": "1" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"IN_PROGRESS\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks/{{taskId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks", "{{taskId}}", "status"]
+            },
+            "description": "Updates task status (PENDING, IN_PROGRESS, COMPLETED). Persisted to MySQL and logged in TaskActivity timeline."
+          }
+        },
+        {
+          "name": "Update Task Details (Manager)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-TaskFlow-Request", "value": "1" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Implement Zero-Trust Security Protocol (Updated)\",\n  \"description\": \"Expanded scope to cover service mesh policies.\",\n  \"assignedEmployeeId\": 2,\n  \"priority\": \"HIGH\",\n  \"status\": \"IN_PROGRESS\",\n  \"startDate\": \"2026-10-30\",\n  \"deadline\": \"2026-11-12\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks/{{taskId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks", "{{taskId}}"]
+            },
+            "description": "Edits task attributes. Changes in priority, deadline, or assignee are tracked in TaskActivity."
+          }
+        },
+        {
+          "name": "Delete Task (Manager)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "X-TaskFlow-Request", "value": "1" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks/{{taskId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks", "{{taskId}}"]
+            },
+            "description": "Deletes task and cascades activity audit logs."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Task Activity Timeline",
+      "item": [
+        {
+          "name": "Get Task Activities (Audit Trail)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/tasks/{{taskId}}/activities",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tasks", "{{taskId}}", "activities"]
+            },
+            "description": "Returns full chronological audit timeline of actions performed on the task (creation, assignment, status updates, completion)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reports & Workload",
+      "item": [
+        {
+          "name": "Get Employee Workload Analysis (Manager)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/employee-workload",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports", "employee-workload"]
+            },
+            "description": "Computes team capacity: total, pending, in-progress, completed, and overdue tasks per employee, and calculates workload level (HIGH, MODERATE, LOW)."
+          }
+        },
+        {
+          "name": "Export Tasks Report CSV (Manager)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/tasks/csv",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports", "tasks", "csv"]
+            },
+            "description": "Generates and streams an RFC 4180 UTF-8 BOM CSV containing task title, assignee, department, priority, status, dates, and overdue indicator."
+          }
+        },
+        {
+          "name": "Get Task Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/task-summary",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports", "task-summary"]
+            },
+            "description": "Aggregate statistics for completion percentage and task distributions."
+          }
+        },
+        {
+          "name": "Get Employee Performance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/reports/employee-performance",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "reports", "employee-performance"]
+            },
+            "description": "List employee completion rates and task volumes."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Get Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "stats"]
+            },
+            "description": "Returns key metrics: total tasks, pending, in progress, completed, overdue, total employees, and status distribution."
+          }
+        },
+        {
+          "name": "Get Recent Tasks",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/recent-tasks?limit=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "recent-tasks"],
+              "query": [
+                { "key": "limit", "value": "5" }
+              ]
+            },
+            "description": "Recent tasks sorted by creation date."
+          }
+        },
+        {
+          "name": "Get Employee Progress",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/dashboard/employee-progress",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "dashboard", "employee-progress"]
+            },
+            "description": "Top performers and completion percentages."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Service Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "health"]
+            },
+            "description": "Verifies that the Spring Boot server and database connection are active."
+          }
+        }
+      ]
+    }
+  ]
+}

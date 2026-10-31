@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="128" viewBox="0 0 520 128" role="img" aria-labelledby="title desc">
+  <title id="title">TaskFlow</title>
+  <desc id="desc">TaskFlow mark made of three forward-moving task bars.</desc>
+  <g transform="translate(8 17)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 22h76" stroke="#1D9A8A" stroke-width="13"/>
+    <path d="M12 48h58" stroke="#1D9A8A" stroke-width="13"/>
+    <path d="M12 74h40" stroke="#1D9A8A" stroke-width="13"/>
+    <path d="m63 68 18 0 10 14" stroke="#142B3C" stroke-width="9"/>
+  </g>
+  <text x="132" y="86" fill="#142B3C" font-family="Inter, Arial, sans-serif" font-size="61" font-weight="700" letter-spacing="-2.4">Task<tspan fill="#1D9A8A" font-weight="600">Flow</tspan></text>
+</svg>

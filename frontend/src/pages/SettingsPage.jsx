@@ -1,0 +1,11 @@
+import { LogOut, ShieldCheck, UserRound } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
+import { Avatar, isManager, PageHeader } from '../components/ui'
+
+export default function SettingsPage() {
+  const { user, logout } = useAuth(), navigate = useNavigate(), toast = useToast()
+  async function signOut() { try { await logout(); navigate('/login', { replace: true }) } catch { toast('Unable to sign out. Please try again.', 'error') } }
+  return <><PageHeader eyebrow="ACCOUNT" title="Profile & settings" description="Your account details and secure session controls."/><div className="settings-layout"><section className="section-panel profile-panel"><div className="section-head"><div><span className="eyebrow">PROFILE</span><h2>Account details</h2></div></div><div className="profile-summary"><Avatar name={user?.fullName || 'User'} size="avatar-xl"/><div><strong>{user?.fullName || 'Team member'}</strong><span>{user?.designation || (isManager(user) ? 'Manager' : 'Employee')}</span></div></div><div className="settings-list"><div><span><UserRound size={16}/>Full name</span><strong>{user?.fullName || '—'}</strong></div><div><span>Email</span><strong>{user?.email || '—'}</strong></div><div><span>Department</span><strong>{user?.department || '—'}</strong></div><div><span>Designation</span><strong>{user?.designation || '—'}</strong></div><div><span>Workspace role</span><strong className="role-chip">{String(user?.role || 'EMPLOYEE').toUpperCase()}</strong></div><div><span>Account status</span><strong className="account-status account-active"><span/>Active</strong></div></div><p className="settings-footnote">Profile changes are managed by your workspace administrator.</p></section><aside className="settings-aside"><div className="section-panel security-panel"><span className="security-icon"><ShieldCheck size={20}/></span><h2>Secure by design</h2><p>Your session is managed by a secure server-side cookie. TaskFlow does not store your password in this browser.</p></div><div className="section-panel signout-panel"><div><h2>Sign out</h2><p>End your current session on this device.</p></div><button className="button button-secondary" onClick={signOut}><LogOut size={16}/>Sign out</button></div></aside></div></>
+}

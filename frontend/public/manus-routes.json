@@ -1,0 +1,13 @@
+{
+  "routes": [
+    { "path": "/", "title": "TaskFlow" },
+    { "path": "/login", "title": "Sign in" },
+    { "path": "/dashboard", "title": "Dashboard" },
+    { "path": "/employees", "title": "Employees" },
+    { "path": "/tasks", "title": "All tasks" },
+    { "path": "/tasks/:taskId", "title": "Task details" },
+    { "path": "/my-tasks", "title": "My tasks" },
+    { "path": "/reports", "title": "Reports" },
+    { "path": "/settings", "title": "Settings" }
+  ]
+}

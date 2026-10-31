@@ -1,0 +1,16 @@
+flowchart TB
+    Browser[React + Vite browser client]
+    Router[React Router<br/>protected role routes]
+    Axios[Axios API client<br/>HttpOnly session cookie]
+    Spring[Spring Boot REST API<br/>Security · DTO validation · services]
+    JPA[Spring Data JPA / Hibernate]
+    MySQL[(MySQL relational database)]
+    Vite[Vite development server :3000<br/>proxies /api to Spring Boot :8080]
+    Static[React production build<br/>bundled into Spring static resources]
+
+    Browser --> Router --> Axios
+    Axios -->|Development| Vite
+    Vite -->|/api proxy| Spring
+    Axios -.->|Production same-origin /api| Spring
+    Static -.->|served by| Spring
+    Spring --> JPA --> MySQL
